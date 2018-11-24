@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 mNtifyWrapper.inboxStyle()
             }
             R.id.btn8 -> {
-                mNtifyWrapper.bigTextStyle()
+                mNtifyWrapper.progress()
             }
             R.id.btn9 -> {
                 mNtifyWrapper.bigTextStyle()

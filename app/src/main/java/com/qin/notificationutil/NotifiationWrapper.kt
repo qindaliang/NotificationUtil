@@ -183,13 +183,13 @@ class NotifiationWrapper(context: Context?) : ContextWrapper(context) {
             setVibrate(vibrate)
             setTicker("测试通知来啦") //通知首次出现在通知栏，带上升动画效果的
             setOngoing(false)//ture，设置他为一个正在进行的通知。他们通常是用来表示一个后台任务,用户积极参与(如播放音乐)或以某种方式正在等待,因此占用设备(如一个文件下载,同步操作,主动网络连接)
-                //ledARGB 表示灯光颜色、 ledOnMS 亮持续时间、ledOffMS 暗的时间
+            //ledARGB 表示灯光颜色、 ledOnMS 亮持续时间、ledOffMS 暗的时间
             setLights(0xFF0000, 3000, 3000);
-                //调用系统默认响铃,设置此属性后setSound()会无效
-                //setDefaults(Notification.DEFAULT_SOUND)
-                //调用系统多媒体裤内的铃声
-                //setSound(Uri.withAppendedPath(MediaStore.Audio.Media.INTERNAL_CONTENT_URI,"2"));
-                //调用自己提供的铃声
+            //调用系统默认响铃,设置此属性后setSound()会无效
+            //setDefaults(Notification.DEFAULT_SOUND)
+            //调用系统多媒体裤内的铃声
+            //setSound(Uri.withAppendedPath(MediaStore.Audio.Media.INTERNAL_CONTENT_URI,"2"));
+            //调用自己提供的铃声
             //    setSound(Uri.parse("android.resource://com.littlejie.notification/" + R.raw.sound));
 
             //等价于setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
@@ -197,8 +197,8 @@ class NotifiationWrapper(context: Context?) : ContextWrapper(context) {
         }
         val notification = builder.build()
         //只有在设置了标志符Flags为Notification.FLAG_SHOW_LIGHTS的时候，才支持呼吸灯提醒。
-     //   notification.flags = Notification.FLAG_SHOW_LIGHTS
-       // notification.flags = Notification.FLAG_NO_CLEAR//不能滑动取消，只能cancel
+        //   notification.flags = Notification.FLAG_SHOW_LIGHTS
+        // notification.flags = Notification.FLAG_NO_CLEAR//不能滑动取消，只能cancel
         // notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL 自动取消
         //notification.flags = notification.flags or Notification.FLAG_ONGOING_EVENT//正在运行 只能cancel
         getNotificationManager().notify(2, notification)//2每一条通知的id都不一样，一样则替换掉前面一条
@@ -340,7 +340,7 @@ class NotifiationWrapper(context: Context?) : ContextWrapper(context) {
             .addLine("Line 6")
             .setSummaryText("+3 more")
         builder.apply {
-//            setContentTitle("标题2")
+            //            setContentTitle("标题2")
 //            setContentText("bigTextStyle")
 //            setContentInfo("信息info2")
             setWhen(System.currentTimeMillis())
@@ -353,6 +353,7 @@ class NotifiationWrapper(context: Context?) : ContextWrapper(context) {
         val notification = builder.build()
         getNotificationManager().notify(2, notification)//2每一条通知的id都不一样，一样则替换掉前面一条
     }
+
     fun bigTextStyle() {
         val builder = NotificationCompat.Builder(mContext!!, CHANNEL_ID2)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -404,5 +405,91 @@ class NotifiationWrapper(context: Context?) : ContextWrapper(context) {
         getNotificationManager().notify(2, notification)//2每一条通知的id都不一样，一样则替换掉前面一条
     }
 
-    
+    fun progress() {
+        val builder = NotificationCompat.Builder(mContext!!, CHANNEL_ID2)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel2 = NotificationChannel(
+                CHANNEL_ID2,
+                CHANNEL_NAME2,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            channel2.apply {
+                name = "name2"
+                description = "description2"
+            }
+            getNotificationManager().createNotificationChannel(channel2)
+            val channel = getNotificationManager().getNotificationChannel(CHANNEL_ID2)
+            if (channel.importance == NotificationManager.IMPORTANCE_NONE) {
+                val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, channel.id)
+                startActivity(intent)
+                Toast.makeText(this, "请手动将通知打开", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.apply {
+            setContentTitle("标题2")
+//            setContentText("bigTextStyle")
+//            setContentInfo("信息info2")
+            setWhen(System.currentTimeMillis())
+            setSmallIcon(R.drawable.ic_launcher_background)
+            setChannelId(CHANNEL_ID2)
+            setProgress(100, 0, false);
+            //下载以及安装线程模拟
+            Thread {
+                for (i in 0..100) {
+                    setProgress(100, i, false)
+                    getNotificationManager().notify(2, builder.build())
+                    //下载进度提示
+                    setContentText("下载$i%")
+                    Thread.sleep(50)
+                }
+                //下载完成后更改标题以及提示信息
+                setContentTitle("开始安装")
+                setContentText("安装中...")
+                //设置进度为不确定，用于模拟安装
+                setProgress(0, 0, true)
+                getNotificationManager().notify(2, builder.build())
+                //                manager.cancel(NO_3);//设置关闭通知栏
+            }.start()
+        }
+        val notification = builder.build()
+        getNotificationManager().notify(2, notification)//2每一条通知的id都不一样，一样则替换掉前面一条
+    }
+
+    fun progress1() {
+        val builder = NotificationCompat.Builder(mContext!!, CHANNEL_ID2)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel2 = NotificationChannel(
+                CHANNEL_ID2,
+                CHANNEL_NAME2,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            channel2.apply {
+                name = "name2"
+                description = "description2"
+            }
+            getNotificationManager().createNotificationChannel(channel2)
+            val channel = getNotificationManager().getNotificationChannel(CHANNEL_ID2)
+            if (channel.importance == NotificationManager.IMPORTANCE_NONE) {
+                val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, channel.id)
+                startActivity(intent)
+                Toast.makeText(this, "请手动将通知打开", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.apply {
+            setContentTitle("标题2")
+            setContentText("bigTextStyle")
+            setContentInfo("信息info2")
+            setWhen(System.currentTimeMillis())
+            setSmallIcon(R.drawable.ic_launcher_background)
+            setChannelId(CHANNEL_ID2)
+        }
+        val notification = builder.build()
+        getNotificationManager().notify(2, notification)//2每一条通知的id都不一样，一样则替换掉前面一条
+    }
 }
